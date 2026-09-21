@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ink">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Console — OpenHands, anywhere</title>
+    <meta
+      name="description"
+      content="Console is a fast, installable app for your OpenHands Cloud agents. Start tasks, watch them work, and reply from any device."
+    />
+    <meta name="theme-color" content="#12100f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f2e9" media="(prefers-color-scheme: light)" />
+    <meta name="color-scheme" content="dark light" />
+
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Console" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <link rel="stylesheet" href="./fonts.css" />
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#composer-input">Skip to message box</a>
+
+    <div id="offline-banner" class="banner banner--offline" hidden role="status">
+      <span class="dot"></span>
+      <span>You're offline. Showing the last thing Console saw.</span>
+    </div>
+
+    <div id="install-banner" class="banner banner--install" hidden>
+      <span class="banner__icon" aria-hidden="true">↓</span>
+      <span id="install-text">Install Console for one-tap access.</span>
+      <button id="install-accept" class="btn btn--amber btn--sm" type="button">Install</button>
+      <button id="install-dismiss" class="btn btn--ghost btn--sm" type="button">Not now</button>
+    </div>
+
+    <div class="app" id="app">
+      <aside class="rail" id="rail" aria-label="Conversations">
+        <header class="rail__head">
+          <div class="brand">
+            <span class="brand__mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="26" height="26">
+                <path d="M9 10l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3.2"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="19" y="19" width="3" height="9" rx="1.5" fill="var(--amber)" />
+              </svg>
+            </span>
+            <span class="brand__word">Console</span>
+          </div>
+          <button id="new-button" class="btn btn--amber btn--icon" type="button"
+            title="New conversation (⌘⇧N)" aria-label="New conversation">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.4"
+                stroke-linecap="round" />
+            </svg>
+          </button>
+        </header>
+
+        <div class="rail__search">
+          <svg class="rail__search-icon" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <input id="search-input" type="search" placeholder="Search tasks…" autocomplete="off"
+            spellcheck="false" aria-label="Search conversations" />
+        </div>
+
+        <div class="rail__filters" id="filters" role="tablist" aria-label="Filter by status">
+          <button class="chip chip--active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button class="chip" data-filter="running" role="tab" aria-selected="false">Running</button>
+          <button class="chip" data-filter="finished" role="tab" aria-selected="false">Done</button>
+        </div>
+
+        <div class="rail__list" id="list" role="list"></div>
+
+        <footer class="rail__foot">
+          <button id="settings-button" class="btn btn--ghost btn--sm rail__foot-btn" type="button">
+            <span class="avatar" id="user-avatar" aria-hidden="true">·</span>
+            <span class="rail__foot-text" id="user-label">Connect account</span>
+          </button>
+          <button id="refresh-button" class="btn btn--ghost btn--icon" type="button"
+            title="Refresh" aria-label="Refresh conversations">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path d="M20 11a8 8 0 10-2.3 6.3" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+              <path d="M20 5v6h-6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </footer>
+      </aside>
+
+      <main class="stage" id="stage">
+        <header class="stage__head" id="stage-head">
+          <button id="rail-toggle" class="btn btn--ghost btn--icon stage__back" type="button"
+            aria-label="Show conversations">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" />
+            </svg>
+          </button>
+          <div class="stage__title-wrap">
+            <h1 class="stage__title" id="stage-title">Console</h1>
+            <div class="stage__meta" id="stage-meta"></div>
+          </div>
+          <div class="stage__actions">
+            <button id="export-button" class="btn btn--ghost btn--icon" type="button" title="Export as Markdown"
+              aria-label="Export transcript" hidden>
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M12 4v11m0 0l-4-4m4 4l4-4" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M5 19h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </button>
+            <button id="stop-button" class="btn btn--danger btn--icon" type="button" title="Stop run"
+              aria-label="Stop run" hidden>
+              <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                <rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <section class="transcript" id="transcript" aria-live="polite" aria-label="Transcript">
+          <div class="empty" id="empty-state">
+            <div class="empty__mark" aria-hidden="true">
+              <svg viewBox="0 0 32 32" width="52" height="52">
+                <path d="M9 10l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3"
+                  stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="19" y="19" width="3" height="9" rx="1.5" fill="var(--amber)" />
+              </svg>
+            </div>
+            <h2 class="empty__title">Your agents, in your pocket</h2>
+            <p class="empty__body">
+              Console is an installable window onto your OpenHands Cloud account. Pick a task on the
+              left, or start a new one — it keeps running even when you close the app.
+            </p>
+            <div class="empty__row">
+              <button class="btn btn--amber" id="empty-new" type="button">Start a task</button>
+              <button class="btn btn--ghost" id="empty-settings" type="button">Connect account</button>
+            </div>
+            <dl class="empty__hints">
+              <div><dt>⌘K</dt><dd>Search tasks</dd></div>
+              <div><dt>⌘⇧N</dt><dd>New task</dd></div>
+              <div><dt>⌘⏎</dt><dd>Send message</dd></div>
+            </dl>
+          </div>
+        </section>
+
+        <form class="composer" id="composer" autocomplete="off">
+          <div class="composer__inner">
+            <textarea id="composer-input" rows="1" placeholder="Ask your agent to do something…"
+              aria-label="Message" spellcheck="false"></textarea>
+            <div class="composer__tools">
+              <label class="composer__run">
+                <input type="checkbox" id="composer-run" checked />
+                <span>Run</span>
+              </label>
+              <button id="send-button" class="btn btn--amber btn--icon" type="submit"
+                aria-label="Send message">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+                  <path d="M5 12h13M12 5.5L18.5 12 12 18.5" fill="none" stroke="currentColor"
+                    stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="composer__foot">
+            <span id="composer-hint">⌘⏎ to send</span>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <div class="scrim" id="scrim" hidden></div>
+
+    <!-- Settings / connect -->
+    <div class="sheet" id="settings-sheet" role="dialog" aria-modal="true"
+      aria-labelledby="settings-title" hidden>
+      <div class="sheet__panel">
+        <header class="sheet__head">
+          <h2 id="settings-title">Connect your account</h2>
+          <button class="btn btn--ghost btn--icon" data-close="settings-sheet" type="button"
+            aria-label="Close">✕</button>
+        </header>
+        <div class="sheet__body">
+          <p class="sheet__lede">
+            Console talks straight to the OpenHands Cloud API from this device. Paste a personal API
+            key — it is stored only in this app's local storage and sent only to
+            <code id="api-host-label">app.all-hands.dev</code>.
+          </p>
+          <label class="field">
+            <span class="field__label">API key</span>
+            <div class="field__row">
+              <input id="api-key-input" type="password" placeholder="oh-…" autocomplete="off"
+                spellcheck="false" />
+              <button class="btn btn--ghost btn--sm" id="api-key-toggle" type="button">Show</button>
+            </div>
+            <span class="field__help">
+              Create one at
+              <a href="https://app.all-hands.dev/settings/api-keys" target="_blank" rel="noopener"
+                >app.all-hands.dev → Settings → API keys</a
+              >.
+            </span>
+          </label>
+          <label class="field">
+            <span class="field__label">API base URL</span>
+            <input id="api-base-input" type="text" placeholder="https://app.all-hands.dev"
+              spellcheck="false" />
+            <span class="field__help">Change this only for a self-hosted deployment.</span>
+          </label>
+
+          <div class="field field--row">
+            <label class="switch">
+              <input type="checkbox" id="opt-poll" checked />
+              <span>Live updates while a task runs</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="opt-notify" />
+              <span>Notify me when a task finishes</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="opt-sound" />
+              <span>Play a sound on finish</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" id="opt-theme" />
+              <span>Light theme (paper)</span>
+            </label>
+          </div>
+
+          <div id="connection-status" class="conn" hidden></div>
+        </div>
+        <footer class="sheet__foot">
+          <button class="btn btn--ghost" id="forget-button" type="button">Forget key</button>
+          <div class="sheet__foot-right">
+            <button class="btn btn--ghost" data-close="settings-sheet" type="button">Cancel</button>
+            <button class="btn btn--amber" id="save-settings" type="button">Save &amp; connect</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- New conversation -->
+    <div class="sheet" id="new-sheet" role="dialog" aria-modal="true" aria-labelledby="new-title" hidden>
+      <div class="sheet__panel">
+        <header class="sheet__head">
+          <h2 id="new-title">Start a task</h2>
+          <button class="btn btn--ghost btn--icon" data-close="new-sheet" type="button"
+            aria-label="Close">✕</button>
+        </header>
+        <div class="sheet__body">
+          <label class="field">
+            <span class="field__label">What should the agent do?</span>
+            <textarea id="new-prompt" rows="5" placeholder="e.g. Fix the flaky test in tests/test_api.py and open a PR"
+              spellcheck="false"></textarea>
+          </label>
+          <div class="field field--split">
+            <label class="field">
+              <span class="field__label">Repository <em>optional</em></span>
+              <input id="new-repo" type="text" placeholder="owner/repo" spellcheck="false" />
+            </label>
+            <label class="field">
+              <span class="field__label">Branch <em>optional</em></span>
+              <input id="new-branch" type="text" placeholder="main" spellcheck="false" />
+            </label>
+          </div>
+          <label class="field">
+            <span class="field__label">Title <em>optional</em></span>
+            <input id="new-title-input" type="text" placeholder="Auto-named from your prompt"
+              spellcheck="false" />
+          </label>
+          <div id="new-error" class="conn conn--error" hidden></div>
+        </div>
+        <footer class="sheet__foot">
+          <span class="sheet__note">The task starts on OpenHands Cloud immediately.</span>
+          <div class="sheet__foot-right">
+            <button class="btn btn--ghost" data-close="new-sheet" type="button">Cancel</button>
+            <button class="btn btn--amber" id="new-start" type="button">Start task</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+
+    <template id="tpl-conversation">
+      <button class="conv" role="listitem" type="button">
+        <span class="conv__top">
+          <span class="conv__title"></span>
+          <span class="conv__status"></span>
+        </span>
+        <span class="conv__snippet"></span>
+        <span class="conv__foot">
+          <span class="conv__repo"></span>
+          <time class="conv__time"></time>
+        </span>
+      </button>
+    </template>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

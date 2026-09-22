@@ -100,6 +100,39 @@ npm run test:api    # live Cloud API round-trip (needs a key)
 running, and asserts on computed styles — which is how the
 `display:flex`-beats-`[hidden]` class of bug gets caught.
 
+## Deploying it permanently
+
+The app is pure static files, so hosting is a copy — no build step. GitHub Pages
+is the free option with HTTPS and a stable URL.
+
+**One-time setup** (~2 minutes, has to happen once from your account because the
+repo does not exist yet):
+
+1. Create the repo: <https://github.com/new> → name it `console-pwa` → **Public** →
+   *do not* add a README.
+2. From this folder, push it:
+
+   ```bash
+   git remote add origin https://github.com/appleziarash1/console-pwa.git
+   git push -u origin main
+   ```
+
+3. In the repo: **Settings → Pages → Source → GitHub Actions**. Nothing to
+   configure otherwise; `.github/workflows/pages.yml` handles the rest.
+
+Your app then lives at **<https://appleziarash1.github.io/console-pwa/>** and
+updates itself on every push to `main`.
+
+If you have a token that can create repos (classic PAT with `repo` + `workflow`),
+the whole thing collapses to one command:
+
+```bash
+GH_PAT=ghp_... ./tools/deploy.sh
+```
+
+Any other static host works too — Netlify, Cloudflare Pages, Vercel — just point
+it at `src/` as the publish directory.
+
 ## Notes
 
 - The app shell is served over HTTPS by the work-* host, so the service worker

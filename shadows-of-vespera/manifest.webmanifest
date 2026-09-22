@@ -1,0 +1,15 @@
+{
+  "name": "Shadows of Vespera",
+  "short_name": "Vespera",
+  "description": "A 2D browser stealth action game. Infiltrate, assassinate, parkour, and liberate the city of Vespera.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#0b0a0e",
+  "theme_color": "#0b0a0e",
+  "categories": ["games"],
+  "icons": [
+    { "src": "./assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

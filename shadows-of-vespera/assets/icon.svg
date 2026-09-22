@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Shadows of Vespera">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b1730"/>
+      <stop offset="1" stop-color="#0b0a0e"/>
+    </linearGradient>
+    <linearGradient id="moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3e6c8"/>
+      <stop offset="1" stop-color="#c9a86a"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#sky)"/>
+  <circle cx="352" cy="150" r="62" fill="url(#moon)" opacity="0.92"/>
+  <circle cx="326" cy="134" r="58" fill="#131126"/>
+  <g fill="#0d0c15">
+    <rect x="48" y="300" width="92" height="164"/>
+    <rect x="152" y="252" width="74" height="212"/>
+    <rect x="238" y="318" width="86" height="146"/>
+    <rect x="336" y="268" width="70" height="196"/>
+    <rect x="418" y="330" width="58" height="134"/>
+  </g>
+  <g fill="#3a3358">
+    <rect x="164" y="278" width="14" height="18"/>
+    <rect x="196" y="278" width="14" height="18"/>
+    <rect x="164" y="322" width="14" height="18"/>
+    <rect x="196" y="322" width="14" height="18"/>
+    <rect x="350" y="292" width="14" height="18"/>
+    <rect x="378" y="292" width="14" height="18"/>
+    <rect x="350" y="336" width="14" height="18"/>
+    <rect x="378" y="336" width="14" height="18"/>
+  </g>
+  <path d="M0 452h512v12H0z" fill="#070610"/>
+  <path d="M150 452c42-30 96-30 138 0z" fill="#0a0913"/>
+  <path d="M256 214l18 62-18 20-18-20z" fill="#e7dcc0"/>
+  <path d="M256 296l14 50-14 14-14-14z" fill="#c9a86a"/>
+</svg>

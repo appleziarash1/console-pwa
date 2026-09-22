@@ -1,0 +1,38 @@
+/* Extra layout polish for menus, cards grids, codex, map tooltips, achievements. */
+
+.codex-entry { border-left: 2px solid rgba(201,162,39,.4); padding: .5rem .8rem; margin-bottom: .6rem; background: rgba(255,255,255,.02); }
+.codex-entry h4 { font-family: var(--title-font); font-size: .78rem; color: var(--gold); letter-spacing: .12rem; }
+.codex-entry p { font-size: .74rem; color: var(--parchment-dim); line-height: 1.7; margin-top: .25rem; }
+.codex-entry.locked p { filter: blur(3px); user-select: none; }
+
+.section-title { font-family: var(--title-font); color: var(--gold); letter-spacing: .22rem; font-size: .82rem; margin: 1rem 0 .6rem; border-bottom: 1px solid rgba(201,162,39,.18); padding-bottom: .3rem; }
+.section-title:first-child { margin-top: 0; }
+
+.stat-row { display: flex; justify-content: space-between; font-size: .74rem; padding: .28rem 0; border-bottom: 1px dashed rgba(201,162,39,.1); color: var(--parchment-dim); }
+.stat-row b { color: var(--parchment); font-weight: 600; }
+
+.empty-note { color: rgba(168,159,140,.55); font-size: .76rem; font-style: italic; padding: .8rem 0; }
+
+.ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: .6rem; }
+.ach { border: 1px solid rgba(201,162,39,.15); padding: .6rem; }
+.ach.unlocked { border-color: var(--gold); background: rgba(201,162,39,.07); }
+.ach.locked { opacity: .4; }
+.ach h4 { font-size: .74rem; color: var(--gold); font-family: var(--title-font); letter-spacing: .1rem; }
+.ach p { font-size: .66rem; color: var(--parchment-dim); margin-top: .2rem; line-height: 1.5; }
+
+.quest-item { border: 1px solid rgba(201,162,39,.18); padding: .8rem; margin-bottom: .6rem; background: rgba(255,255,255,.02); }
+.quest-item h4 { font-family: var(--title-font); font-size: .82rem; color: var(--gold); letter-spacing: .1rem; }
+.quest-item .q-meta { font-size: .66rem; color: var(--veil-bright); letter-spacing: .1rem; margin: .25rem 0; }
+.quest-item p { font-size: .74rem; color: var(--parchment-dim); line-height: 1.65; }
+.quest-item ul { list-style: none; margin-top: .5rem; }
+.quest-item ul li { font-size: .7rem; color: var(--parchment-dim); display: flex; gap: .35rem; }
+.quest-item ul li::before { content: '◇'; color: var(--gold); }
+.quest-item ul li.done { color: var(--ok); text-decoration: line-through; }
+
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .6rem; }
+.slot { border: 1px solid rgba(201,162,39,.2); padding: .6rem; font-size: .72rem; }
+.slot .slot-name { font-family: var(--title-font); color: var(--gold); font-size: .7rem; letter-spacing: .12rem; }
+.slot .slot-value { color: var(--parchment); margin-top: .25rem; }
+
+/* Minimap compass */
+#minimap { image-rendering: pixelated; }

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0a0e" />
+<title>Shadows of Vespera</title>
+<meta name="description" content="Shadows of Vespera — a 2D browser stealth action game. Infiltrate, assassinate, parkour, and liberate the city of Vespera." />
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles/base.css" />
+<link rel="stylesheet" href="./styles/hud.css" />
+<link rel="stylesheet" href="./styles/menus.css" />
+</head>
+<body>
+<div id="app">
+  <canvas id="game" aria-label="Game viewport"></canvas>
+
+  <!-- ══════════════ HUD ══════════════ -->
+  <div id="hud" class="hidden">
+    <div class="hud-top-left">
+      <div class="bar-stack">
+        <div class="bar hp-bar" title="Health">
+          <div class="bar-fill" id="hpFill"></div>
+          <span class="bar-label" id="hpLabel">100 / 100</span>
+        </div>
+        <div class="bar stam-bar" title="Stamina">
+          <div class="bar-fill" id="stamFill"></div>
+        </div>
+        <div class="bar xp-bar" title="Experience">
+          <div class="bar-fill" id="xpFill"></div>
+          <span class="bar-label small" id="xpLabel">Lv 1</span>
+        </div>
+      </div>
+      <div class="status-icons">
+        <span class="status-chip" id="wantedChip" title="Wanted level">★ 0</span>
+        <span class="status-chip" id="weatherChip" title="Weather">Clear</span>
+        <span class="status-chip" id="timeChip" title="Time of day">Day</span>
+        <span class="status-chip" id="districtChip" title="District">Old Quarter</span>
+      </div>
+    </div>
+
+    <div class="hud-top-center">
+      <div id="objectiveBox" class="objective-box">
+        <div class="objective-title" id="objTitle">No active mission</div>
+        <ul class="objective-list" id="objList"></ul>
+      </div>
+      <div id="alertBanner" class="alert-banner">ALERT</div>
+    </div>
+
+    <div class="hud-top-right">
+      <canvas id="minimap" width="180" height="180" aria-label="Minimap"></canvas>
+      <div class="meta-line">
+        <span id="coinLabel">⛁ 0</span>
+        <span id="tokenLabel">✦ 0</span>
+        <span id="matLabel">⚒ 0</span>
+        <span id="intelLabel">◈ 0</span>
+      </div>
+    </div>
+
+    <div class="hud-bottom-left">
+      <div class="gear-slot">
+        <div class="gear-icon" id="weaponIcon">⚔</div>
+        <div class="gear-text"><span class="gear-name" id="weaponName">Short Sword</span><span class="gear-sub" id="weaponSub">Balanced</span></div>
+      </div>
+      <div class="gear-slot">
+        <div class="gear-icon" id="gadgetIcon">💨</div>
+        <div class="gear-text"><span class="gear-name" id="gadgetName">Smoke Bomb</span><span class="gear-sub" id="gadgetCount">×3</span></div>
+      </div>
+    </div>
+
+    <div class="hud-bottom-right">
+      <div class="detect-meter" id="detectMeter">
+        <span class="detect-label" id="detectState">SAFE</span>
+        <div class="detect-bar"><div class="detect-fill" id="detectFill"></div></div>
+      </div>
+      <div class="combo-readout hidden" id="comboReadout">×0</div>
+    </div>
+
+    <div id="toastStack" class="toast-stack"></div>
+    <div id="subtitle" class="subtitle hidden"></div>
+  </div>
+
+  <!-- ══════════════ MOBILE CONTROLS ══════════════ -->
+  <div id="touchControls" class="hidden">
+    <div id="joystickZone"><div id="joystickBase"><div id="joystickKnob"></div></div></div>
+    <div class="touch-buttons">
+      <button class="tbtn tbtn-jump" data-act="jump">JUMP</button>
+      <button class="tbtn tbtn-dash" data-act="dash">DASH</button>
+      <button class="tbtn tbtn-attack" data-act="attack">ATK</button>
+      <button class="tbtn tbtn-block" data-act="block">BLK</button>
+      <button class="tbtn tbtn-gadget" data-act="gadget">GAD</button>
+      <button class="tbtn tbtn-assassinate" data-act="assassinate">KILL</button>
+      <button class="tbtn tbtn-interact" data-act="interact">USE</button>
+    </div>
+    <button class="tbtn tbtn-pause" data-act="pause">‖</button>
+  </div>
+
+  <!-- ══════════════ MAIN MENU ══════════════ -->
+  <div id="mainMenu" class="overlay menu-overlay">
+    <div class="menu-scrim"></div>
+    <div class="title-block">
+      <div class="title-runes">◆ ◆ ◆</div>
+      <h1 class="game-title">SHADOWS<span>OF VESPERA</span></h1>
+      <p class="game-tagline">A city under the Dominion. A blade in the dark. A name erased from history.</p>
+    </div>
+    <nav class="menu-list">
+      <button class="menu-btn primary" data-menu="continue" id="btnContinue">CONTINUE</button>
+      <button class="menu-btn primary" data-menu="new">NEW GAME</button>
+      <button class="menu-btn" data-menu="load">LOAD GAME</button>
+      <button class="menu-btn" data-menu="howto">HOW TO PLAY</button>
+      <button class="menu-btn" data-menu="options">OPTIONS</button>
+      <button class="menu-btn" data-menu="credits">CREDITS</button>
+    </nav>
+    <div class="menu-footer">
+      <button class="icon-btn" id="soundToggle" title="Toggle sound">🔊</button>
+      <span class="build-tag" id="buildTag">v1.0</span>
+    </div>
+  </div>
+
+  <!-- ══════════════ GENERIC PANEL (options / howto / credits / saves) ══════════════ -->
+  <div id="panelScreen" class="overlay panel-overlay hidden">
+    <div class="panel">
+      <header class="panel-head"><h2 id="panelTitle">Panel</h2><button class="close-btn" data-close-panel>✕</button></header>
+      <div class="panel-body" id="panelBody"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CUTSCENE ══════════════ -->
+  <div id="cutscene" class="overlay cutscene-overlay hidden">
+    <div class="cut-bg" id="cutBg"></div>
+    <div class="cut-content">
+      <h2 id="cutTitle"></h2>
+      <div id="cutLines" class="cut-lines"></div>
+      <button class="menu-btn small" id="cutSkip">SKIP ▸</button>
+    </div>
+  </div>
+
+  <!-- ══════════════ DIALOGUE ══════════════ -->
+  <div id="dialogue" class="overlay dialogue-overlay hidden">
+    <div class="dlg-box">
+      <div class="dlg-portrait" id="dlgPortrait">?</div>
+      <div class="dlg-main">
+        <div class="dlg-speaker" id="dlgSpeaker">NPC</div>
+        <div class="dlg-text" id="dlgText"></div>
+        <div class="dlg-choices" id="dlgChoices"></div>
+        <div class="dlg-hint" id="dlgHint">[SPACE] continue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PAUSE ══════════════ -->
+  <div id="pauseMenu" class="overlay menu-overlay hidden">
+    <div class="menu-scrim"></div>
+    <h2 class="panel-h2">PAUSED</h2>
+    <nav class="menu-list">
+      <button class="menu-btn primary" data-pause="resume">RESUME</button>
+      <button class="menu-btn" data-pause="codex">CODEX / INTEL</button>
+      <button class="menu-btn" data-pause="options">OPTIONS</button>
+      <button class="menu-btn" data-pause="mainmenu">QUIT TO MENU</button>
+    </nav>
+  </div>
+
+  <!-- ══════════════ CITY MENUS ══════════════ -->
+  <div id="gameMenus" class="overlay menus-overlay hidden">
+    <div class="big-menu">
+      <header class="big-menu-head">
+        <h2 id="bigMenuTitle">MAP</h2>
+        <div class="big-menu-tabs">
+          <button data-tab="map">MAP</button>
+          <button data-tab="inventory">GEAR</button>
+          <button data-tab="skills">SKILLS</button>
+          <button data-tab="quests">QUESTS</button>
+          <button data-tab="recruits">ALLIES</button>
+          <button data-tab="codex">CODEX</button>
+        </div>
+        <button class="close-btn" data-close-menus>✕</button>
+      </header>
+      <div class="big-menu-body">
+        <div class="menu-pane" id="paneMap">
+          <canvas id="bigmap" width="900" height="560"></canvas>
+          <div class="map-legend" id="mapLegend"></div>
+        </div>
+        <div class="menu-pane hidden" id="paneInventory"></div>
+        <div class="menu-pane hidden" id="paneSkills"></div>
+        <div class="menu-pane hidden" id="paneQuests"></div>
+        <div class="menu-pane hidden" id="paneRecruits"></div>
+        <div class="menu-pane hidden" id="paneCodex"></div>
+      </div>
+      <footer class="big-menu-foot">
+        <span id="bigMenuHint">[M] close  ·  [ESC] pause</span>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ══════════════ SHOP ══════════════ -->
+  <div id="shopScreen" class="overlay panel-overlay hidden">
+    <div class="panel wide">
+      <header class="panel-head"><h2 id="shopTitle">MERCHANT</h2><span class="wallet" id="shopWallet">⛁ 0</span><button class="close-btn" data-close-shop>✕</button></header>
+      <div class="shop-grid" id="shopGrid"></div>
+      <footer class="panel-foot" id="shopFooter"></footer>
+    </div>
+  </div>
+
+  <!-- ══════════════ SAFEHOUSE ══════════════ -->
+  <div id="safehouseScreen" class="overlay panel-overlay hidden">
+    <div class="panel wide">
+      <header class="panel-head"><h2>SAFEHOUSE</h2><button class="close-btn" data-close-safehouse>✕</button></header>
+      <div class="safehouse-grid" id="safehouseGrid"></div>
+      <footer class="panel-foot">Rest to restore health · Save your progress · Select a mission · Respec skills</footer>
+    </div>
+  </div>
+
+  <!-- ══════════════ GAME OVER / VICTORY ══════════════ -->
+  <div id="endScreen" class="overlay menu-overlay hidden">
+    <div class="menu-scrim"></div>
+    <h2 id="endTitle" class="end-title">CAUGHT</h2>
+    <p id="endText" class="end-text"></p>
+    <nav class="menu-list">
+      <button class="menu-btn primary" id="endRetry">RETRY MISSION</button>
+      <button class="menu-btn" id="endMenu">MAIN MENU</button>
+    </nav>
+  </div>
+
+  <!-- ══════════════ LOADING ══════════════ -->
+  <div id="loading" class="overlay loading-overlay">
+    <div class="load-inner">
+      <div class="load-rune">◆</div>
+      <h2>SHADOWS OF VESPERA</h2>
+      <div class="load-track"><div class="load-fill" id="loadFill"></div></div>
+      <p class="load-note" id="loadNote">Waking the city…</p>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./src/main.js"></script>
+<noscript><p style="color:#eee;font-family:sans-serif;padding:2rem">Shadows of Vespera requires JavaScript to run.</p></noscript>
+</body>
+</html>

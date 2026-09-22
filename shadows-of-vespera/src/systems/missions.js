@@ -106,9 +106,6 @@ export class MissionSystem {
     this.game.toast(`MISSION START: ${mission.name}`, 'good');
     this.game.audio.sfx('objective');
     this.game.save.currentMission = mission.id;
-    // District props are built during load, which happens before this call.
-    // Rebuild them now so the markers/targets match the mission actually running.
-    this.game.world.buildMissionProps({ mission });
     return true;
   }
 

@@ -150,7 +150,9 @@ class Game {
       ...CUTSCENES.prologue,
       onEnd: () => {
         // No hardcoded entry coordinate: the district picks a validated spot.
-        this.enterDistrict('oldQuarter', {});
+        // The mission is passed into the load so its markers and targets exist.
+        const first = MISSIONS.m01_courier;
+        this.enterDistrict('oldQuarter', { mission: first });
         this.missions.start('m01_courier');
         this.screens.playCutscene({ ...CUTSCENES.act1, mood: 'exploration', onEnd: () => this.startPlayState() });
       },
@@ -286,14 +288,16 @@ class Game {
   startMissionFromMenu(missionId) {
     const m = MISSIONS[missionId];
     if (!m) return;
-    // Move the player into the mission's district, then start it. The mission is
-    // passed into the district load so objective markers, targets, prisoners and
-    // the boss are built for THIS mission rather than the previously active one.
+    // Move the player into the mission's district. Props are rebuilt once the
+    // briefing dialogue resolves (see below), so the markers, targets and boss
+    // match the mission actually running.
     if (this.world.districtId !== m.district) this.enterDistrict(m.district, { mission: m });
-    else this.world.buildMissionProps({ mission: m });
     this.screens.hideAll();
     const dlgId = m.dialogue;
     const begin = () => {
+      // District props are built during load, which runs before the mission is
+      // active. Rebuild them so markers and targets match this mission.
+      this.world.buildMissionProps({ mission: m });
       this.missions.start(missionId);
       this.missionApproach = null;
       this.startPlayState();

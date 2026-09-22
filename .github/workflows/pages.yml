@@ -6,32 +6,36 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 # Let a running deploy finish rather than cancelling it mid-publish.
 concurrency:
   group: pages
   cancel-in-progress: false
 
+# Publishes by force-pushing src/ to the gh-pages branch, which is what
+# Settings → Pages serves. This needs no `pages` permission, so it works in
+# environments where the GitHub App cannot enable Pages itself.
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      # The app is plain static files; src/ is uploaded as-is, no build step.
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: src
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Publish src/ to gh-pages
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cp -r src/. "$tmp/"
+          rm -f "$tmp/console-pwa.zip"
+          touch "$tmp/.nojekyll"   # keep underscore-prefixed paths served as-is
+          cd "$tmp"
+          git init -q
+          git checkout -q -b gh-pages
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Publish ${GITHUB_SHA::7}"
+          git push -q --force \
+            "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" \
+            gh-pages:gh-pages

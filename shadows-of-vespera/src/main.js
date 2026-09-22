@@ -125,7 +125,7 @@ class Game {
 
   pause() {
     if (this.state === 'playing') { this.state = 'paused'; this.screens.openPause(); }
-    else if (this.state === 'paused') this.resume();
+    else if (this.state === 'cutscene' || this.state === 'paused') this.resume();
   }
 
   closeMenus() { if (this.world.district) this.resume(); else this.openMainMenu(); }
@@ -146,6 +146,9 @@ class Game {
     this.applySaveToPlayer();
     this.audio.init();
     this.audio.resume();
+    // The loop only advances cutscenes while a world state is active, so leave
+    // the menu state here or the opening cutscene never progresses or skips.
+    this.state = 'cutscene';
     this.screens.playCutscene({
       ...CUTSCENES.prologue,
       onEnd: () => {
@@ -718,10 +721,19 @@ class Game {
       if (this.slowmoTimer <= 0) this.slowmoAmount = 0;
     }
 
-    if (this.state === 'menu' || this.state === 'boot') { return; }
+    if (this.state === 'boot') { return; }
+
+    // Cutscenes and dialogue drive themselves and must run even from the menu
+    // state, otherwise the opening cinematic can neither time out nor be skipped.
+    const cinematics = this.screens.current === 'cutscene' || this.screens.current === 'dialogue';
+    if (!cinematics && this.state === 'menu') return;
 
     this.screens.updateCutscene(dt, input);
     this.screens.updateDialogue(input);
+    if (cinematics) {
+      if (this.audio.ctx) this.save.stats.playtime = (this.save.stats.playtime || 0) + dt;
+      return;
+    }
 
     if (this.state === 'playing') {
       this.handlePlayingInput();

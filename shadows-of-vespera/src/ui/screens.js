@@ -520,9 +520,19 @@ export class Screens {
         if (input.wasPressed(`Digit${i + 1}`)) { this.pickChoice(node.choices[i]); return; }
       }
       if (input.wasPressed('jump') || input.wasPressed('confirm')) this.pickChoice(node.choices[0]);
-    } else if (input.wasPressed('jump') || input.wasPressed('confirm') || input.mousePressed.left) {
-      if (node.end) this.finishNode(node); else this.advanceNode(node);
+    } else if (input.wasPressed('jump') || input.wasPressed('confirm')) {
+      this.advanceDialogue();
     }
+  }
+
+  /** Advances the current dialogue node by one step (or takes a default choice). */
+  advanceDialogue() {
+    if (this.current !== 'dialogue' || !this.dialogue) return;
+    const node = this.dialogue.tree.nodes[this.dialogue.nodeId];
+    if (!node) return;
+    if (node.choices?.length) this.pickChoice(node.choices[0]);
+    else if (node.end) this.finishNode(node);
+    else this.advanceNode(node);
   }
 
   endDialogue() {
@@ -658,6 +668,9 @@ export class Screens {
     this.hideAll();
     this.show('endScreen');
     this.current = 'end';
+    // Freeze the simulation behind the end screen; retry/menu restart it.
+    this.game.state = 'ended';
+    this.game.world.active = false;
     $('endTitle').textContent = title;
     $('endText').textContent = text;
     $('endRetry').classList.toggle('hidden', !!opts.noRetry);
@@ -695,6 +708,13 @@ export class Screens {
       else if (a === 'mainmenu') this.game.quitToMenu();
     }));
     $('cutSkip')?.addEventListener('click', () => { this.cutTimer = 0; });
+    // Tapping the cinematic itself skips it. Listening on the overlay (not the
+    // canvas) means the click is never swallowed, and mobile has a way out.
+    $('cutscene')?.addEventListener('click', () => { this.cutTimer = 0; });
+    $('dialogue')?.addEventListener('click', (e) => {
+      if (e.target.closest('.dlg-choices')) return;
+      this.advanceDialogue();
+    });
     $('btnContinue')?.addEventListener('click', () => {});
     $('soundToggle')?.addEventListener('click', () => {
       const on = this.game.audio.enabled;

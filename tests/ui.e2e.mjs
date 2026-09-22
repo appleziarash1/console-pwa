@@ -226,12 +226,14 @@ await test("dismissing the install banner persists the choice", async () => {
 });
 
 await test("the service worker registers and controls the page", async () => {
+  const expectedScope = new URL("./", APP).href;
   const reg = await page.evaluate(async () => {
     const r = await navigator.serviceWorker.ready;
-    return { scope: r.scope, active: !!r.active };
+    return { scope: r.scope, active: !!r.active, controller: !!navigator.serviceWorker.controller };
   });
   assert.ok(reg.active, "a SW is active");
-  assert.match(reg.scope, /localhost:12000|127\.0\.0\.1:12000/);
+  // works whether the app is served from / or a Pages subpath
+  assert.equal(reg.scope, expectedScope, `scope should be ${expectedScope}`);
 });
 
 await test("the shell is precached for offline use", async () => {

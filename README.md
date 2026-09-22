@@ -102,36 +102,30 @@ running, and asserts on computed styles — which is how the
 
 ## Deploying it permanently
 
-The app is pure static files, so hosting is a copy — no build step. GitHub Pages
-is the free option with HTTPS and a stable URL.
+**It is already deployed:**
 
-**One-time setup** (~2 minutes, has to happen once from your account because the
-repo does not exist yet):
+### 👉 <https://appleziarash1.github.io/console-pwa/>
 
-1. Create the repo: <https://github.com/new> → name it `console-pwa` → **Public** →
-   *do not* add a README.
-2. From this folder, push it:
+Open that on your phone, **Connect account**, paste an API key, then use
+*Add to Home screen* / *Install app*. That URL is permanent and independent of
+any local server.
 
-   ```bash
-   git remote add origin https://github.com/appleziarash1/console-pwa.git
-   git push -u origin main
-   ```
+Deploying happens automatically: a push to `main` runs
+`.github/workflows/pages.yml`, which copies `src/` onto the `gh-pages` branch —
+and that branch is what Pages serves (Settings → Pages). `main` stays the source
+of truth; `gh-pages` is generated, so don't commit to it by hand.
 
-3. In the repo: **Settings → Pages → Source → GitHub Actions**. Nothing to
-   configure otherwise; `.github/workflows/pages.yml` handles the rest.
+The workflow force-pushes rather than using `actions/deploy-pages` because the
+GitHub App in this environment has no `pages` permission, so it cannot enable
+Pages or call `configure-pages`. `contents: write` is all this approach needs.
 
-Your app then lives at **<https://appleziarash1.github.io/console-pwa/>** and
-updates itself on every push to `main`.
+### Deploying somewhere else
 
-If you have a token that can create repos (classic PAT with `repo` + `workflow`),
-the whole thing collapses to one command:
-
-```bash
-GH_PAT=ghp_... ./tools/deploy.sh
-```
-
-Any other static host works too — Netlify, Cloudflare Pages, Vercel — just point
-it at `src/` as the publish directory.
+The app is pure static files, so hosting is a copy — no build step. Any static
+host works; point it at `src/` as the publish directory (Netlify, Cloudflare
+Pages, Vercel, or `python3 tools/serve.py` behind your own proxy). `tools/deploy.sh`
+handles a from-scratch GitHub Pages setup if you have a token that can create
+repos and manage Pages.
 
 ## Notes
 
